@@ -39,7 +39,7 @@ python server.py
 ## Как развернуть на сервере
 
 ```bash
-python server.py
+docker-compose up --build
 ```
 
 После этого перенаправить на микросервис запросы, начинающиеся с `/archive/`. Например:
