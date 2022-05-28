@@ -34,7 +34,7 @@ poetry shell
 ```bash
 python server.py
 ```
-####Для вызова справки
+###Для вызова справки
 ```bash
 python server.py -h
 ```
@@ -42,7 +42,27 @@ python server.py -h
 Сервер запустится на порту 8080, чтобы проверить его работу перейдите в браузере на страницу [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
 
 ## Как развернуть на сервере
+Для запуска проекта на сервере в директории `./app` нужно создать `.env` файл и записать в него следующие переменные:
+```dotenv
+LOGGING_LEVEL=10
+STORAGE_DIR="/test_photos"
+```
+Переменная `LOGGING_LEVEL` отвечает за наличие логгирования и его уровень. Возможные значения:
 
+| LOGGING_LEVEL | STATUS   |
+|---------------|----------|
+| 0             | NOTSET   |
+| 10            | DEBUG    |
+| 20            | INFO     |
+| 30            | WARNING  |
+| 40            | ERROR    |
+| 50            | CRITICAL |
+| 100           | DISABLE  |
+Подробнее про логгирование: [https://docs.python.org/3/library/logging.html#logging-levels](https://docs.python.org/3/library/logging.html#logging-levels)
+
+Переменная `STORAGE_DIR` описывает относительный путь к директрории, где будут храниться данные для скачивания. В репозитории присутствует директория `test_photos`, в которой размещены файлы для тестирования приложения.
+### Запуск Docker-compose
+В корневой директории выполнить следующую команду:
 ```bash
 docker-compose up --build
 ```

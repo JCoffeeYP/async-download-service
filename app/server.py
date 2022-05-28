@@ -12,10 +12,8 @@ parser = get_parser()
 args = parser.parse_args()
 
 BUF_SIZE = 100 * 1024
-# LOGGING_LEVEL = int(os.environ.get("LOGGING_LEVEL")) or args.logs
-# STORAGE_DIR = os.environ.get("STORAGE_DIR") or args.storage_dir
-LOGGING_LEVEL = args.logs
-STORAGE_DIR = args.storage_dir
+LOGGING_LEVEL = int(os.environ.get("LOGGING_LEVEL")) or args.logs
+STORAGE_DIR = os.environ.get("STORAGE_DIR") or args.storage_dir
 
 logging.basicConfig(
     format="%(levelname)-8s [%(asctime)s] %(message)s",
