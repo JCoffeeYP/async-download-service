@@ -7,25 +7,18 @@ from aiohttp import web
 
 from arg_parser import get_parser
 
-
-parser = get_parser()
-args = parser.parse_args()
-
 BUF_SIZE = 100 * 1024
-LOGGING_LEVEL = int(os.environ.get("LOGGING_LEVEL")) or args.logs
-STORAGE_DIR = os.environ.get("STORAGE_DIR") or args.storage_dir
 
-logging.basicConfig(
-    format="%(levelname)-8s [%(asctime)s] %(message)s",
-    level=LOGGING_LEVEL,
-)
+logger = logging.getLogger(__file__)
 
 
 async def archive(request):
+    storage_dir = os.environ.get("STORAGE_DIR") or args.storage_dir
+
     response = web.StreamResponse()
     archive_name = request.match_info.get("archive_hash", "")
     error = False
-    files_directory_path = os.path.abspath(os.path.join(STORAGE_DIR, archive_name))
+    files_directory_path = os.path.abspath(os.path.join(storage_dir, archive_name))
     if not os.path.exists(f"..{files_directory_path}"):
         async with aiofiles.open("templates/page_404.html", mode="r") as index_file:
             index_contents = await index_file.read()
@@ -34,16 +27,17 @@ async def archive(request):
     response.headers["Content-Type"] = "text/html"
     response.headers["Content-Disposition"] = f'attachment; filename="{archive_name}.zip"'
 
-    cmd = f"zip -jr - {archive_name}"
-    process = await asyncio.subprocess.create_subprocess_shell(
-        cmd,
+    process = await asyncio.subprocess.create_subprocess_exec(
+        "zip",
+        "-r",
+        "-",
+        ".",
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
-        cwd=f"..{os.path.join(STORAGE_DIR)}"
+        cwd=f"..{os.path.join(storage_dir)}/{archive_name}",
     )
-
     await response.prepare(request)
-    logging.info("Download begins")
+    logger.info("Download begins")
     try:
         while True:
             stdout = await process.stdout.read(BUF_SIZE)
@@ -51,23 +45,16 @@ async def archive(request):
                 break
 
             await response.write(stdout)
-            logging.debug("Sending archive chunk ...")
+            logger.debug("Sending archive chunk ...")
     except BaseException:
-        logging.error("Download was interrupted!")
+        logger.error("Download was interrupted!")
         error = True
-        process_pid = process.pid
+        process.kill()
         await process.communicate()
-        await asyncio.create_subprocess_exec(
-            "sh",
-            "./subprocess_kill.sh",
-            f"{process_pid}",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
         raise
     finally:
         if not error:
-            logging.info("Download is complete")
+            logger.info("Download is complete")
             return response
 
 
@@ -78,6 +65,19 @@ async def handle_index_page(request):
 
 
 if __name__ == "__main__":
+    parser = get_parser()
+    args = parser.parse_args()
+    logging_level = (
+        int(os.environ.get("LOGGING_LEVEL"))
+        if os.environ.get("LOGGING_LEVEL")
+        else args.logs
+    )
+
+    logging.basicConfig(
+        format="%(levelname)-8s [%(asctime)s] %(message)s",
+        level=logging_level,
+    )
+
     app = web.Application()
     app.add_routes(
         [
