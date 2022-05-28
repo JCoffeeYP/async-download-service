@@ -34,7 +34,7 @@ poetry shell
 ```bash
 python server.py
 ```
-###Для вызова справки
+### Для вызова справки
 ```bash
 python server.py -h
 ```
@@ -49,15 +49,16 @@ STORAGE_DIR="/test_photos"
 ```
 Переменная `LOGGING_LEVEL` отвечает за наличие логгирования и его уровень. Возможные значения:
 
-| LOGGING_LEVEL | STATUS   |
-|---------------|----------|
-| 0             | NOTSET   |
-| 10            | DEBUG    |
-| 20            | INFO     |
-| 30            | WARNING  |
-| 40            | ERROR    |
-| 50            | CRITICAL |
-| 100           | DISABLE  |
+|  LOGGING_LEVEL  |   STATUS   |
+|:---------------:|:----------:|
+|        0        |   NOTSET   |
+|       10        |   DEBUG    |
+|       20        |    INFO    |
+|       30        |  WARNING   |
+|       40        |   ERROR    |
+|       50        |  CRITICAL  |
+|       100       |  DISABLE   |
+
 Подробнее про логгирование: [https://docs.python.org/3/library/logging.html#logging-levels](https://docs.python.org/3/library/logging.html#logging-levels)
 
 Переменная `STORAGE_DIR` описывает относительный путь к директрории, где будут храниться данные для скачивания. В репозитории присутствует директория `test_photos`, в которой размещены файлы для тестирования приложения.
