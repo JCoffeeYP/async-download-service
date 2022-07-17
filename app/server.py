@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from functools import partial
 
 import aiofiles
 from aiohttp import web
@@ -12,8 +13,7 @@ BUF_SIZE = 100 * 1024
 logger = logging.getLogger(__file__)
 
 
-async def archive(request):
-    storage_dir = os.environ.get("STORAGE_DIR") or args.storage_dir
+async def archive(request, storage_dir):
 
     response = web.StreamResponse()
     archive_name = request.match_info.get("archive_hash", "")
@@ -78,11 +78,14 @@ if __name__ == "__main__":
         level=logging_level,
     )
 
+    storage_dir = os.environ.get("STORAGE_DIR") or args.storage_dir
+    get_archive = partial(archive, storage_dir=storage_dir)
+
     app = web.Application()
     app.add_routes(
         [
             web.get("/", handle_index_page),
-            web.get("/archive/{archive_hash}/", archive),
+            web.get("/archive/{archive_hash}/", get_archive),
         ]
     )
     web.run_app(app)

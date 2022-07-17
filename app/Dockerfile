@@ -9,8 +9,7 @@ RUN apk add --no-cache \
     openssl \
     libffi \
     zip
-COPY . /app/
-RUN chmod +x subprocess_kill.sh
+COPY poetry.lock pyproject.toml /app/
 RUN apk update && apk upgrade
 RUN apk add --no-cache --virtual build-deps \
     zip \
@@ -23,3 +22,5 @@ RUN apk add --no-cache --virtual build-deps \
     && pip3 install poetry \
     && poetry install --no-interaction --no-ansi \
     && apk del --no-cache build-deps
+COPY . /app/
+RUN chmod +x subprocess_kill.sh
